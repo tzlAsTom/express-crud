@@ -2,10 +2,9 @@
     URI:
         <prefix>/restful/models/    Model CRUD
         <prefix>/restful/system/    Model Meta CRUD
-        <prefix>/models/crudIndex   CRUD index page
-        <prefix>/system/crudIndex   Meta CRUD index page
-
-        <prefix>/index             plugin index
+        <prefix>/models/index       CRUD index page
+        <prefix>/system/crudModel   Meta CRUD index page
+        <prefix>/index              plugin index
 
     template:
         views/models/
@@ -13,6 +12,6 @@
         views/index
 
 <user space>
-
-    <app>/routes/express-cuid/[model] (filter, beforeSave, afterSave)
+    <app>/models/express-cuid/models/[model] (filter, beforeSave, afterSave)
+    <app>/models/express-cuid/auth/authentication.js
 
