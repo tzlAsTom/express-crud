@@ -1,0 +1,32 @@
+{
+  "name": "express-crud-demo",
+  "version": "0.1.0",
+  "description": "demo for express-crud",
+  "main": "index.js",
+  "scripts": {
+    "test": "not ready yet",
+    "start": "env PORT=3333 node ./bin/www"
+  },
+  "dependencies": {
+    "body-parser": "~1.12.0",
+    "cookie-parser": "~1.3.4",
+    "debug": "~2.1.1",
+    "express": "~4.12.2",
+    "jade": "~1.9.2",
+    "morgan": "~1.5.1",
+    "serve-favicon": "~2.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tzlAsTom/express-crud.git"
+  },
+  "keywords": [
+    "express-crud"
+  ],
+  "author": "tong.zhilian@gmail.com",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/tzlAsTom/express-crud/issues"
+  },
+  "homepage": "https://github.com/tzlAsTom/express-crud"
+}

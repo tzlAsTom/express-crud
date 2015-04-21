@@ -1,0 +1,18 @@
+<extension space>:
+    URI:
+        <prefix>/restful/models/    Model CRUD
+        <prefix>/restful/system/    Model Meta CRUD
+        <prefix>/models/crudIndex   CRUD index page
+        <prefix>/system/crudIndex   Meta CRUD index page
+
+        <prefix>/index             plugin index
+
+    template:
+        views/models/
+        views/system/
+        views/index
+
+<user space>
+
+    <app>/routes/express-cuid/[model] (filter, beforeSave, afterSave)
+

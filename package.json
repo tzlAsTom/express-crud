@@ -1,0 +1,22 @@
+{
+  "name": "express-crud",
+  "version": "0.1.0",
+  "description": "crud framework with mongodb and express",
+  "main": "index.js",
+  "scripts": {
+    "test": "not ready yet"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://tzlAsTom@github.com/tzlAsTom/express-crud.git"
+  },
+  "keywords": [
+    "crud"
+  ],
+  "author": "tong.zhilian@gmail.com",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/tzlAsTom/express-crud/issues"
+  },
+  "homepage": "https://github.com/tzlAsTom/express-crud"
+}
