@@ -1,3 +1,3 @@
 'use strict';
 
-module.exports = require('./lib/express-crud');
+module.exports = require('./routes/express-crud');

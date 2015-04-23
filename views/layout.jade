@@ -1,0 +1,40 @@
+html(ng-app="tcrud")
+  head
+    block headScript
+        //- script(src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js")
+        script(src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.js")
+
+        script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js")
+        script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js")
+    block headCss
+        link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css")
+        link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css")
+        //-todo
+        link(rel="stylesheet" href="/admin/stylesheets/basic.css")
+    title= title
+  body(ng-controller="main")
+    if !_hideBreadCrumb
+        ul(class="breadcrumb")
+            li: a(href="/") home
+            each val in [{name: 'google', href: 'http://google.com'}]
+                li: a(href=val.href)= val.name
+            li(class="active")= title
+
+    //- server message
+    if(_error)
+        div(class="alert alert-danger")= _error
+    if(_success)
+        div(class="alert alert-success")= _success
+
+
+    //- client message
+    div(class="hidden" ng-class="{alert:1, 'alert-success': !isError, 'alert-danger': isError, hidden: !alertMessage}") {{ alertMessage }}
+
+    //- client full screen loading page
+    div(class="tcrud-loading" ng-show="$http.pendingRequests.length")
+        span(style="position:absolute;top:50%;font-weight:bolder;font-size:large") Loading {{$http.pendingRequests.length}}
+
+    div(class="panel")
+        block content
+            | empty body
+

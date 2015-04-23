@@ -1,0 +1,57 @@
+extends ./layout.jade
+
+block append headScript
+    //- todo
+    script(src="/admin/angularJs/model.js")
+
+block content
+    div(ng-controller="model")
+        tcrud-config(data=modelConfig)
+        block tcrudEditForm
+            h3 {{(curRecord._id == undefined)?'Create':'Edit'}}
+            div.tcrudEditForm
+                table.tcrudEditTable: tbody
+                    tr(ng-show="!(curRecord._id == undefined)")
+                        th ID
+                        td: input(type="text" ng-model="curRecord._id" disabled="disabled")
+                    tr
+                        th(class="tcrud-form-not-empty") name
+                        td: input(type="text" ng-model="curRecord.name" submit-required="yes")
+                input(type="button" value="create" ng-show="curRecord._id == undefined" ng-click="create()")
+                input(type="button" value="update" ng-show="!(curRecord._id == undefined)" ng-click="update()")
+                input(type="button" value="reset" ng-click="reset()")
+
+
+        block tcrudNotice
+            div(class="alert alert-info") notice
+
+        block tcrudSearchForm
+            h3 Search
+            div.tcrudSearchForm
+                table.tcrudSearchTable: tbody
+                    tr
+                        th ID
+                        td: input(type="text" ng-model="query._id")
+                    tr
+                        th name
+                        td: input(type="text" ng-model="query.name")
+                input(type="button" value="search" ng-click="search()")
+
+        div.panel
+            block tcrudRecordList
+                h4 Result list
+                div.tcrudRecordList
+                    table.tcrudListTable: tbody
+                        tr
+                            th ID
+                            th name
+                            th Delete
+                        tr(ng-repeat="elem in recordList")
+                            td {{ elem._id }}
+                                div(style="display:inline;float:right")
+                                    input(type="button" ng-click="initEdit(elem._id)" value="edit")
+                                    input(type="button" ng-click="initCopy(elem._id)" value="copy")
+                            td {{ elem.name }}
+                            td
+                                input(type="button" ng-click="delete(elem._id)" value="delete")
+

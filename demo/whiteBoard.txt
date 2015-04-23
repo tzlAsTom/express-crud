@@ -15,6 +15,7 @@
     <app>/models/express-cuid/models/[model] (authentication, filter, beforeSave, afterSave)
     <app>/models/express-cuid/auth/authentication.js
 
+    <app>/express-crud   crud source
 
 
 TBD:
@@ -22,6 +23,7 @@ TBD:
     customer C? should support column's customer template for create page
         =>  should support column's customer template for retrive/create/edit
             should support appending customer column for list page
+            => user can rewrite template in user space
 
     Model pages:
         retrive(search) (should support merge search page within create?)
@@ -30,3 +32,8 @@ TBD:
         delete(merge to result list of retrive)
 
     i18n support
+
+    support sort_weight
+
+    support multi model in one page(tabWidget)
+

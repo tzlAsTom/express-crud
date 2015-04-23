@@ -18,5 +18,10 @@
   "bugs": {
     "url": "https://github.com/tzlAsTom/express-crud/issues"
   },
-  "homepage": "https://github.com/tzlAsTom/express-crud"
+  "homepage": "https://github.com/tzlAsTom/express-crud",
+  "dependencies": {
+    "express": "~4.12.2",
+    "jade": "^1.9.2",
+    "mongodb": "^2.0.27"
+  }
 }
