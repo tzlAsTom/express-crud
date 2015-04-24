@@ -39,8 +39,8 @@ td {
 }
 
 .tcrud-form-not-empty:after{
-color: #aa0000;
-content:'(*)';
+    color: #aa0000;
+    content:'(*)';
 }
 
 .tcrud-loading {
@@ -53,5 +53,26 @@ content:'(*)';
     background-color: #AAAAAA;
     opacity: 0.5;
     text-align: center;
+}
+
+.tcrud-alert{
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    text-align: center;
+    opacity: 0.5;
+    z-index: 80;
+    -moz-transition: 1s linear all;
+    -webkit-transition: 1s linear all;
+    transition: 1s linear all;
+    -moz-transition-delay: 0s;
+    -webkit-transition-delay: 0s;
+    transition-delay: 0s;
+}
+
+.tcrud-alert.ng-hide:not(.ng-hide-animate) {
+    display: block!important;
+    top: -100%;
 }
 

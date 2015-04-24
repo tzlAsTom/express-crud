@@ -28,7 +28,7 @@ html(ng-app="tcrud")
 
 
     //- client message
-    div(class="hidden" ng-class="{alert:1, 'alert-success': !isError, 'alert-danger': isError, hidden: !alertMessage}") {{ alertMessage }}
+    div(class="tcrud-alert" ng-show="alertMessage" ng-class="{alert:1, 'alert-success': !isError, 'alert-danger': isError}") {{ alertMessage }}
 
     //- client full screen loading page
     div(class="tcrud-loading" ng-show="$http.pendingRequests.length")

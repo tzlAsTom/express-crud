@@ -15,11 +15,66 @@ block content
                         th ID
                         td: input(type="text" ng-model="curRecord._id" disabled="disabled")
                     tr
-                        th(class="tcrud-form-not-empty") name
-                        td: input(type="text" ng-model="curRecord.name" submit-required="yes")
+                        th(class="tcrud-form-not-empty") text
+                        td: input(type="text" ng-model="curRecord.name")
+                    //- temp code for remote input
+                    tr
+                        th(class="tcrud-form-not-empty") number
+                        td: input(type="text" ng-model="curRecord.number")
+                    tr
+                        th password
+                        td: input(type="password" ng-model="curRecord.password")
+                    tr
+                        th checkbox
+                        td
+                            input(type="checkbox" ng-model="curRecord.checkbox[0]" value="0" id="crudCheckBox1")
+                            label(for="crudCheckBox1") option1
+                            input(type="checkbox" ng-model="curRecord.checkbox[1]" value="1" id="crudCheckBox2")
+                            label(for="crudCheckBox2") option2
+                    tr
+                        th radiobox
+                        td
+                            input(type="radio" ng-model="curRecord.radio" value="0" id="crudRadio1")
+                            label(for="crudRadio1") option1
+                            input(type="radio" ng-model="curRecord.radio" value="1" id="crudRadio2")
+                            label(for="crudRadio2") option2
+                    tr
+                        th select
+                        td
+                            select(ng-model="curRecord.select")
+                                option(value=0) option1
+                                option(value=1) option2
+
+                    tr
+                        th textarea
+                        td
+                            textarea(type="textarea" ng-model="curRecord.textarea")
+
+                    tr
+                        th remoteCheckBox
+                        td
+                            span(ng-repeat="elem in formData.remoteCheckBox")
+                                input(type="checkbox" ng-model="curRecord.remoteCheckBox[elem.value]" value="{{elem._id}}" id="crudremoteCheckBox{{$index}}")
+                                label(for="crudremoteCheckBox{{$index}}") {{elem.name}}
+
+                    tr
+                        th remoteRadioBox
+                        td
+                            span(ng-repeat="elem in formData.remoteRadio")
+                                input(type="radio" ng-model="curRecord.remoteRadio" value="{{elem.value}}" id="crudremoteRadio{{$index}}")
+                                label(for="crudremoteRadio{{$index}}") {{elem.name}}
+
+                    tr
+                        th remoteSelect
+                        td
+                            select(ng-model="curRecord.remoteSelect" ng-options="elem.value as elem.name for elem in formData.remoteSelect")
+
+
                 input(type="button" value="create" ng-show="curRecord._id == undefined" ng-click="create()")
                 input(type="button" value="update" ng-show="!(curRecord._id == undefined)" ng-click="update()")
                 input(type="button" value="reset" ng-click="reset()")
+
+                input(type="button" value="debug" ng-click="debug()")
 
 
         block tcrudNotice

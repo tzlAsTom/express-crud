@@ -37,3 +37,5 @@ TBD:
 
     support multi model in one page(tabWidget)
 
+    form input file/hidden/date/datetime/time/
+
