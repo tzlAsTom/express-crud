@@ -39,3 +39,20 @@ TBD:
 
     form input file/hidden/date/datetime/time/
 
+    config: max display element for radiobox/checkbox in one line
+
+TODO:
+2015-4-24
+    enhance model template
+        result list
+            column name(from config)
+            selected radiobox string(from config)
+            selected checkbox string(from config)
+            selected select string(from config)
+        generate create/search form from config
+
+
+
+
+
+
