@@ -31,26 +31,6 @@
         };
 
 
-        this.filterFromCheckBoxConfig = function(config){
-            var rtn = [];
-
-            Object.keys(config).forEach(function(elem){
-                if(config[elem]) rtn.push(elem);
-            });
-
-            return rtn;
-        };
-
-        this.filterToCheckBoxConfig = function(config){
-            var rtn = {};
-
-            angular.forEach(config, function(data){
-                rtn[data] = true;
-            });
-
-            return rtn;
-        };
-
         //* radiobox/checkbox/select can use remote config
         /*
         {
@@ -90,76 +70,64 @@
     }]);
 
 
-    angular.module('tcrud').controller('model', ['$scope', 'Container', function($scope, Container){
+    angular.module('tcrud').controller('model', ['$scope', 'Container', '$log', function($scope, Container, $log){
         //{modelName: ""}
-        $scope.config = {};
+        $scope.modelConfig = {};
 
-
-        var formDataConfig = [
-            {
-                inputName: 'remoteSelect',
-                sourceUrl: '/admin/restful/models/remoteSelect',
-                nameKey: 'name',
-                valueKey: 'number',
-            },
-
-            {
-                inputName: 'remoteRadio',
-                sourceUrl: '/admin/restful/models/remoteRadio',
-                nameKey: 'name',
-                valueKey: 'number',
-            },
-
-            {
-                inputName: 'remoteCheckBox',
-                sourceUrl: '/admin/restful/models/remoteCheckBox',
-                nameKey: 'name',
-                valueKey: 'number',
-            },
-        ];
 
         $scope.formData = {};
-        formDataConfig.forEach(function(inputDataConfig){
-            Container.getResource(inputDataConfig.sourceUrl).success(function(data){
-                var temp = [];
-                data.forEach(function(elem){
-                    temp.push({name: elem[ inputDataConfig.nameKey ], value: elem[ inputDataConfig.valueKey ]});
-                });
-                Container.setDataSource(inputDataConfig.inputName, temp);
-                $scope.formData[ inputDataConfig.inputName ] = temp;
+        $scope.formDataValue2Key = {};
+        $scope.initializeConfig = function(config){
+            $scope.modelConfig = config;
+            $scope.modelConfig.columns.forEach(function(columnConfig, index){
+                if(columnConfig.type == 'radio'
+                    || columnConfig.type == 'checkbox'
+                    || columnConfig.type == 'select'
+                ){
+                    var value2Key = {};
+                    if(columnConfig.dataSource){
+                        columnConfig.dataSource.forEach(function(elem){
+                            value2Key[ elem.value ] = elem.labelName;
+                        });
+
+                        Container.setDataSource(columnConfig.name + 'DataList', columnConfig.dataSource);
+                        $scope.formData[ columnConfig.name ] = columnConfig.dataSource;
+
+                        Container.setDataSource(columnConfig.name + 'Value2Key', value2Key);
+                        $scope.formDataValue2Key[ columnConfig.name ] = value2Key;
+
+                        if(index == $scope.modelConfig.columns.length - 1) $scope.search();
+                    }else if(columnConfig.dataSourceUrl){
+                        Container.getResource(columnConfig.dataSourceUrl).success(function(data){
+                            var dataList = [], value2Key = {};
+                            data.forEach(function(elem){
+                                dataList.push({labelName: elem[ columnConfig.nameKey ], value: elem[ columnConfig.valueKey ]});
+                                value2Key[ elem[columnConfig.valueKey] ] = elem[ columnConfig.nameKey ];
+                            });
+                            Container.setDataSource(columnConfig.name + 'DataList', dataList);
+                            $scope.formData[ columnConfig.name ] = dataList;
+
+                            Container.setDataSource(columnConfig.name + 'Value2Key', value2Key);
+                            $scope.formDataValue2Key[ columnConfig.name ] = value2Key;
+                            if(index == $scope.modelConfig.columns.length - 1) $scope.search();
+                        });
+                    }else{
+                        $log.error('missing dataSource[Url] for ' + columnConfig.name);
+                    }
+                }else{
+                    if(index == $scope.modelConfig.columns.length - 1) $scope.search();
+                }
             });
-        });
-//         Container.setDataSource('remoteSelect', [
-//             {name: 'option3', value: 3},
-//             {name: 'option4', value: 4},
-//             {name: 'option5', value: 5}
-//         ]);
-//
-//         $scope.formData.remoteSelect = Container.getDataSource('remoteSelect');
-//
-//         Container.setDataSource('remoteRadio', [
-//             {name: 'option13', value: 13},
-//             {name: 'option14', value: 14},
-//             {name: 'option15', value: 15}
-//         ]);
-//         $scope.formData.remoteRadio = Container.getDataSource('remoteRadio');
-//
-//         Container.setDataSource('remoteCheckBox', [
-//             {name: 'option113', value: 113},
-//             {name: 'option114', value: 114},
-//             {name: 'option115', value: 115}
-//         ]);
-//         $scope.formData.remoteCheckBox = Container.getDataSource('remoteCheckBox');
+        };
 
         $scope.curRecord = {};
         $scope.recordList = [];
 
         $scope.query = {};
 
-
         $scope.create = function(){
             var curRecord = angular.copy($scope.curRecord);
-            Container.createResoure('/admin/restful/models/' + $scope.config.modelName, curRecord).success(function(data){
+            Container.createResoure('/admin/restful/models/' + $scope.modelConfig.name, curRecord).success(function(data){
                 Container.updateAlertMessage(false, 'Create success; _id: ' + data._id);
                 $scope.recordList.unshift(data);
             });
@@ -169,7 +137,7 @@
             var curRecord = angular.copy($scope.curRecord);
             var curId = curRecord._id;
             delete curRecord._id;
-            Container.updateResource('/admin/restful/models/' + $scope.config.modelName + '/' + curId, curRecord).success(function(data){
+            Container.updateResource('/admin/restful/models/' + $scope.modelConfig.name + '/' + curId, curRecord).success(function(data){
                 Container.updateAlertMessage(false, 'Update Success; _id: ' + curId);
                 angular.forEach($scope.recordList, function(elem, index){
                     if(elem._id == curId) $scope.recordList[index] = angular.copy($scope.curRecord);
@@ -178,7 +146,7 @@
         };
 
         $scope.delete = function(_id){
-            Container.deleteResource('/admin/restful/models/' + $scope.config.modelName + '/' + _id).success(function(data){
+            Container.deleteResource('/admin/restful/models/' + $scope.modelConfig.name + '/' + _id).success(function(data){
                 Container.updateAlertMessage(false, 'Delete success; _id: ' + _id);
 
                 angular.forEach($scope.recordList, function(elem, index){
@@ -191,6 +159,9 @@
         };
 
         $scope.debug = function(){
+            console.log($scope.formData);
+            console.log($scope.formDataValue2Key);
+            console.log($scope.query);
             Container.updateAlertMessage(false, JSON.stringify($scope.curRecord, null, '  '));
         };
 
@@ -202,11 +173,14 @@
             Object.keys($scope.query).forEach(function(elem){
                 if($scope.query[elem] === '') delete $scope.query[elem];
             });
-            Container.getResource('/admin/restful/models/' + $scope.config.modelName, $scope.query).success(function(data){
+            Container.getResource('/admin/restful/models/' + $scope.modelConfig.name, $scope.query).success(function(data){
                 $scope.recordList = data;
             });
         };
 
+        $scope.resetSearch = function(){
+            $scope.query = {};
+        };
         $scope.initEdit = function(_id){
             angular.forEach($scope.recordList, function(elem, index){
                 if(_id == elem._id){
@@ -230,9 +204,7 @@
         return {
             restrict: 'E',
             link: function link(scope, element, attrs) {
-                console.log('yyy');
-                console.log(scope.query);
-                scope.config = scope.$new(true).$eval(attrs['data']);
+                scope.initializeConfig(scope.$new(true).$eval(attrs['data']));
                 scope.search();
             }
         };

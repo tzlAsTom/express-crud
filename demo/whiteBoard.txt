@@ -12,7 +12,7 @@
         views/index
 
 <user space>
-    <app>/models/express-cuid/models/[model] (authentication, filter, beforeSave, afterSave)
+    <app>/models/express-cuid/models/[model] (authentication, filter, beforeSave, afterSave, beforeReturn)
     <app>/models/express-cuid/auth/authentication.js
 
     <app>/express-crud   crud source
@@ -35,7 +35,8 @@ TBD:
 
     support sort_weight
 
-    support multi model in one page(tabWidget)
+    support multi model in one page(tabWidget)("label for" namespace
+    conflict);
 
     form input file/hidden/date/datetime/time/
 
@@ -44,15 +45,20 @@ TBD:
 TODO:
 2015-4-24
     enhance model template
-        result list
-            column name(from config)
-            selected radiobox string(from config)
-            selected checkbox string(from config)
-            selected select string(from config)
-        generate create/search form from config
+        result list (done - 2015-5-25)
+            column name(from config --server)  (done - 2015-5-25)
+            selected radiobox string(from config --client)  (done - 2015-5-25)
+            selected checkbox string(from config )  (done - 2015-5-25)
+            selected select string(from config )  (done - 2015-5-25)
+        generate create/search form from config  (done - 2015-5-25)
 
 
+2015-5-24
+    server error handling
 
 
+2015-5-25
+    checkbox searching
+    column CRUD filter
 
 

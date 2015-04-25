@@ -4,73 +4,47 @@ block append headScript
     //- todo
     script(src="/admin/angularJs/model.js")
 
+mixin generateInputForColumn(modelConfig, columnConfig, curRecord)
+    tr
+        th= columnConfig.labelName
+        case columnConfig.type
+            when "text"
+                td: input(type="text" ng-model="#{curRecord}.#{columnConfig.name}")
+            when "password"
+                td: input(type="password" ng-model="#{curRecord}.#{columnConfig.name}")
+            when "textarea"
+                td: textarea(type="textarea" ng-model="#{curRecord}.textarea")
+            when "checkbox"
+                td
+                    span(ng-repeat="elem in formData.#{columnConfig.name}")
+                        input(type="checkbox" ng-model="#{curRecord}.#{columnConfig.name}[elem.value]" value="{{elem._id}}" id="crud_input_#{curRecord}_#{modelConfig.name}_#{columnConfig.name}_{{$index}}")
+                        label(for="crud_input_#{curRecord}_#{modelConfig.name}_#{columnConfig.name}_{{$index}}") {{elem.labelName}}
+                        br(ng-if="$index%#{modelConfig.selectBreakSize} == (#{modelConfig.selectBreakSize} - 1)")
+            when "radio"
+                td
+                    span(ng-repeat="elem in formData.#{columnConfig.name}")
+                        input(type="radio" ng-model="#{curRecord}.#{columnConfig.name}" value="{{elem.value}}" id="crud_input_#{curRecord}_#{modelConfig.name}_#{columnConfig.name}_{{$index}}")
+                        label(for="crud_input_#{curRecord}_#{modelConfig.name}_#{columnConfig.name}_{{$index}}") {{elem.labelName}}
+                        br(ng-if="$index%#{modelConfig.selectBreakSize} == (#{modelConfig.selectBreakSize} - 1)")
+            when "select"
+                td
+                    select(ng-model="#{curRecord}.#{columnConfig.name}" ng-options="elem.value as elem.labelName for elem in formData.#{columnConfig.name}")
+            default
+               td input type not supported: #{columnConfig.type}
+
 block content
     div(ng-controller="model")
         tcrud-config(data=modelConfig)
         block tcrudEditForm
             h3 {{(curRecord._id == undefined)?'Create':'Edit'}}
-            div.tcrudEditForm
+            div(class="tcrudEditForm #{modelConfig.name}")
                 table.tcrudEditTable: tbody
                     tr(ng-show="!(curRecord._id == undefined)")
                         th ID
                         td: input(type="text" ng-model="curRecord._id" disabled="disabled")
-                    tr
-                        th(class="tcrud-form-not-empty") text
-                        td: input(type="text" ng-model="curRecord.name")
-                    //- temp code for remote input
-                    tr
-                        th(class="tcrud-form-not-empty") number
-                        td: input(type="text" ng-model="curRecord.number")
-                    tr
-                        th password
-                        td: input(type="password" ng-model="curRecord.password")
-                    tr
-                        th checkbox
-                        td
-                            input(type="checkbox" ng-model="curRecord.checkbox[0]" value="0" id="crudCheckBox1")
-                            label(for="crudCheckBox1") option1
-                            input(type="checkbox" ng-model="curRecord.checkbox[1]" value="1" id="crudCheckBox2")
-                            label(for="crudCheckBox2") option2
-                    tr
-                        th radiobox
-                        td
-                            input(type="radio" ng-model="curRecord.radio" value="0" id="crudRadio1")
-                            label(for="crudRadio1") option1
-                            input(type="radio" ng-model="curRecord.radio" value="1" id="crudRadio2")
-                            label(for="crudRadio2") option2
-                    tr
-                        th select
-                        td
-                            select(ng-model="curRecord.select")
-                                option(value=0) option1
-                                option(value=1) option2
 
-                    tr
-                        th textarea
-                        td
-                            textarea(type="textarea" ng-model="curRecord.textarea")
-
-                    tr
-                        th remoteCheckBox
-                        td
-                            span(ng-repeat="elem in formData.remoteCheckBox")
-                                input(type="checkbox" ng-model="curRecord.remoteCheckBox[elem.value]" value="{{elem._id}}" id="crudremoteCheckBox{{$index}}")
-                                label(for="crudremoteCheckBox{{$index}}") {{elem.name}}
-                                br(ng-if="$index%5 == 4")
-
-                    tr
-                        th remoteRadioBox
-                        td
-                            span(ng-repeat="elem in formData.remoteRadio")
-                                input(type="radio" ng-model="curRecord.remoteRadio" value="{{elem.value}}" id="crudremoteRadio{{$index}}")
-                                label(for="crudremoteRadio{{$index}}") {{elem.name}}
-                                br(ng-if="$index%5 == 4")
-
-                    tr
-                        th remoteSelect
-                        td
-                            select(ng-model="curRecord.remoteSelect" ng-options="elem.value as elem.name for elem in formData.remoteSelect")
-
+                    each columnConfig in modelConfig.columns
+                        +generateInputForColumn(modelConfig, columnConfig, 'curRecord')
 
                 input(type="button" value="create" ng-show="curRecord._id == undefined" ng-click="create()")
                 input(type="button" value="update" ng-show="!(curRecord._id == undefined)" ng-click="update()")
@@ -84,15 +58,17 @@ block content
 
         block tcrudSearchForm
             h3 Search
-            div.tcrudSearchForm
+            div(class="tcrudSearchForm #{modelConfig.name}")
                 table.tcrudSearchTable: tbody
                     tr
                         th ID
                         td: input(type="text" ng-model="query._id")
-                    tr
-                        th name
-                        td: input(type="text" ng-model="query.name")
+
+                    each columnConfig in modelConfig.columns
+                        +generateInputForColumn(modelConfig, columnConfig, 'query')
+
                 input(type="button" value="search" ng-click="search()")
+                input(type="button" value="reset" ng-click="resetSearch()")
 
         div.panel
             block tcrudRecordList
@@ -101,14 +77,26 @@ block content
                     table.tcrudListTable: tbody
                         tr
                             th ID
-                            th name
+                            each columnConfig in modelConfig.columns
+                                th= columnConfig.labelName
                             th Delete
                         tr(ng-repeat="elem in recordList")
                             td {{ elem._id }}
                                 div(style="display:inline;float:right")
                                     input(type="button" ng-click="initEdit(elem._id)" value="edit")
                                     input(type="button" ng-click="initCopy(elem._id)" value="copy")
-                            td {{ elem.name }}
+                            each columnConfig in modelConfig.columns
+                                case columnConfig.type
+                                    when "checkbox"
+                                        td
+                                            span(ng-repeat="(elem2, value2) in elem.#{columnConfig.name}")
+                                                span(ng-if="value2") {{ formDataValue2Key.#{columnConfig.name}[elem2] }}
+                                                    span(ng-if="!$last") ,&nbsp; 
+                                    when "radio"
+                                    when "select"
+                                        td {{ formDataValue2Key.#{columnConfig.name}[ elem.#{columnConfig.name} ] }}
+                                    default
+                                        td {{ elem.#{columnConfig.name} }}
                             td
                                 input(type="button" ng-click="delete(elem._id)" value="delete")
 

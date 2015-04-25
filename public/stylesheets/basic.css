@@ -34,7 +34,7 @@ td {
     color: #FFFFFF;
 }
 
-.tcrudEditTable, .tcrudSearchTablem, .tcrudListTable {
+.tcrudEditTable, .tcrudSearchTable, .tcrudListTable {
     min-width: 600px;
 }
 
