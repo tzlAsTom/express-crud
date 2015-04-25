@@ -35,8 +35,7 @@ TBD:
 
     support sort_weight
 
-    support multi model in one page(tabWidget)("label for" namespace
-    conflict);
+    support multi model in one page(tabWidget)("label for" namespace conflict -- done);
 
     form input file/hidden/date/datetime/time/
 
@@ -60,5 +59,6 @@ TODO:
 2015-5-25
     checkbox searching
     column CRUD filter
-
+    column's default value
+    pagination
 

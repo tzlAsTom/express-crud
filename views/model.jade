@@ -17,14 +17,16 @@ mixin generateInputForColumn(modelConfig, columnConfig, curRecord)
             when "checkbox"
                 td
                     span(ng-repeat="elem in formData.#{columnConfig.name}")
-                        input(type="checkbox" ng-model="#{curRecord}.#{columnConfig.name}[elem.value]" value="{{elem._id}}" id="crud_input_#{curRecord}_#{modelConfig.name}_#{columnConfig.name}_{{$index}}")
-                        label(for="crud_input_#{curRecord}_#{modelConfig.name}_#{columnConfig.name}_{{$index}}") {{elem.labelName}}
+                        label
+                            input(type="checkbox" ng-model="#{curRecord}.#{columnConfig.name}[elem.value]" value="{{elem._id}}")
+                            {{ elem.labelName }}
                         br(ng-if="$index%#{modelConfig.selectBreakSize} == (#{modelConfig.selectBreakSize} - 1)")
             when "radio"
                 td
                     span(ng-repeat="elem in formData.#{columnConfig.name}")
-                        input(type="radio" ng-model="#{curRecord}.#{columnConfig.name}" value="{{elem.value}}" id="crud_input_#{curRecord}_#{modelConfig.name}_#{columnConfig.name}_{{$index}}")
-                        label(for="crud_input_#{curRecord}_#{modelConfig.name}_#{columnConfig.name}_{{$index}}") {{elem.labelName}}
+                        label
+                            input(type="radio" ng-model="#{curRecord}.#{columnConfig.name}" value="{{elem.value}}")
+                            {{ elem.labelName }}
                         br(ng-if="$index%#{modelConfig.selectBreakSize} == (#{modelConfig.selectBreakSize} - 1)")
             when "select"
                 td
