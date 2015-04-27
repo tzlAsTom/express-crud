@@ -39,7 +39,7 @@ TBD:
 
     form input file/hidden/date/datetime/time/
 
-    config: max display element for radiobox/checkbox in one line
+    config: max display element for radiobox/checkbox in one line (done)
 
 TODO:
 2015-4-24
@@ -52,13 +52,15 @@ TODO:
         generate create/search form from config  (done - 2015-5-25)
 
 
-2015-5-24
+2015-4-24
     server error handling
 
 
-2015-5-25
+2015-4-25
     checkbox searching
     column CRUD filter
     column's default value
     pagination
 
+2015-4-26
+    should support edit/create in popup
