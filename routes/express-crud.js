@@ -29,8 +29,24 @@ module.exports = function(root, express, app, options){
     });
 
 
-    router.get('/page/system/model', function(req, res) {
-        res.send('todo');
+    router.get('/page/system/modelMeta', function(req, res) {
+        var modelMetaConfig = {
+            name: 'tcrudModels',
+            displayName: 'Model Metadata',
+            columns: [
+                {name: '_id', labelName: 'Collection Name', type: 'text'},
+                {name: 'displayName', labelName: 'Display Name', type: 'text'},
+                {name: 'selectBreakSize', labelName: 'Item Number Before Input Line Break', type: 'text', defaultValue: 5},
+                {name: 'columns', labelName: 'Column List', value:[
+                    {name: 'columnName1', labelName: 'Column Name1', type: 'text', defaultValue: 'aaa'},
+                ]},
+            ],
+        };
+
+        res.locals.title = modelMetaConfig.displayName;
+        res.locals.modelConfig = modelMetaConfig;
+        res.locals.pretty = true;
+        res.status(200).send(jade.renderFile('../views/modelMeta.jade', res.locals));
     });
 
         //todo: paganition
@@ -48,7 +64,7 @@ module.exports = function(root, express, app, options){
             selectBreakSize: 5,
             columns: [
                 {name: 'text', labelName: 'Text', type: 'text', defaultValue: 'aaa', /*todo: form validate; disable showing in CRUD form*/
-                    
+
                 },
                 {name: 'number', labelName: "Number", type: 'text'},
                 {name: 'password', labelName: "Password", type: 'password'},
@@ -97,6 +113,8 @@ module.exports = function(root, express, app, options){
     router.get('/restful/models/:name', function(req, res){
         var modelName = req.params.name;console.log(modelName);
         if(!isModelNameValid(modelName)) throw Error('modelName invalid');
+
+        //todo: modelName prefixed with 'tcrud' is not allow
 
         db.collection(modelName, function(err, collection){
             //todo: throw => error handling

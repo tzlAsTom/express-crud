@@ -96,6 +96,7 @@
                         Container.setDataSource(columnConfig.name + 'Value2Key', value2Key);
                         $scope.formDataValue2Key[ columnConfig.name ] = value2Key;
 
+                        //todo: async code. index not reliable
                         if(index == $scope.modelConfig.columns.length - 1) $scope.search();
                     }else if(columnConfig.dataSourceUrl){
                         Container.getResource(columnConfig.dataSourceUrl).success(function(data){

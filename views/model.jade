@@ -40,13 +40,14 @@ block content
         block tcrudEditForm
             h3 {{(curRecord._id == undefined)?'Create':'Edit'}}
             div(class="tcrudEditForm #{modelConfig.name}")
-                table.tcrudEditTable: tbody
-                    tr(ng-show="!(curRecord._id == undefined)")
-                        th ID
-                        td: input(type="text" ng-model="curRecord._id" disabled="disabled")
+                block tcrudEditTable
+                    table.tcrudEditTable: tbody
+                        tr(ng-show="!(curRecord._id == undefined)")
+                            th ID
+                            td: input(type="text" ng-model="curRecord._id" disabled="disabled")
 
-                    each columnConfig in modelConfig.columns
-                        +generateInputForColumn(modelConfig, columnConfig, 'curRecord')
+                        each columnConfig in modelConfig.columns
+                            +generateInputForColumn(modelConfig, columnConfig, 'curRecord')
 
                 input(type="button" value="create" ng-show="curRecord._id == undefined" ng-click="create()")
                 input(type="button" value="update" ng-show="!(curRecord._id == undefined)" ng-click="update()")
@@ -61,44 +62,46 @@ block content
         block tcrudSearchForm
             h3 Search
             div(class="tcrudSearchForm #{modelConfig.name}")
-                table.tcrudSearchTable: tbody
-                    tr
-                        th ID
-                        td: input(type="text" ng-model="query._id")
+                block tcrudSearchTable
+                    table.tcrudSearchTable: tbody
+                        tr
+                            th ID
+                            td: input(type="text" ng-model="query._id")
 
-                    each columnConfig in modelConfig.columns
-                        +generateInputForColumn(modelConfig, columnConfig, 'query')
+                        each columnConfig in modelConfig.columns
+                            +generateInputForColumn(modelConfig, columnConfig, 'query')
 
-                input(type="button" value="search" ng-click="search()")
-                input(type="button" value="reset" ng-click="resetSearch()")
+                    input(type="button" value="search" ng-click="search()")
+                    input(type="button" value="reset" ng-click="resetSearch()")
 
         div.panel
             block tcrudRecordList
                 h4 Result list
                 div.tcrudRecordList
-                    table.tcrudListTable: tbody
-                        tr
-                            th ID
-                            each columnConfig in modelConfig.columns
-                                th= columnConfig.labelName
-                            th Delete
-                        tr(ng-repeat="elem in recordList")
-                            td {{ elem._id }}
-                                div(style="display:inline;float:right")
-                                    input(type="button" ng-click="initEdit(elem._id)" value="edit")
-                                    input(type="button" ng-click="initCopy(elem._id)" value="copy")
-                            each columnConfig in modelConfig.columns
-                                case columnConfig.type
-                                    when "checkbox"
-                                        td
-                                            span(ng-repeat="(elem2, value2) in elem.#{columnConfig.name}")
-                                                span(ng-if="value2") {{ formDataValue2Key.#{columnConfig.name}[elem2] }}
-                                                    span(ng-if="!$last") ,&nbsp; 
-                                    when "radio"
-                                    when "select"
-                                        td {{ formDataValue2Key.#{columnConfig.name}[ elem.#{columnConfig.name} ] }}
-                                    default
-                                        td {{ elem.#{columnConfig.name} }}
-                            td
-                                input(type="button" ng-click="delete(elem._id)" value="delete")
+                    block tcrudListTable
+                        table.tcrudListTable: tbody
+                            tr
+                                th ID
+                                each columnConfig in modelConfig.columns
+                                    th= columnConfig.labelName
+                                th Delete
+                            tr(ng-repeat="elem in recordList")
+                                td {{ elem._id }}
+                                    div(style="display:inline;float:right")
+                                        input(type="button" ng-click="initEdit(elem._id)" value="edit")
+                                        input(type="button" ng-click="initCopy(elem._id)" value="copy")
+                                each columnConfig in modelConfig.columns
+                                    case columnConfig.type
+                                        when "checkbox"
+                                            td
+                                                span(ng-repeat="(elem2, value2) in elem.#{columnConfig.name}")
+                                                    span(ng-if="value2") {{ formDataValue2Key.#{columnConfig.name}[elem2] }}
+                                                        span(ng-if="!$last") ,&nbsp;
+                                        when "radio"
+                                        when "select"
+                                            td {{ formDataValue2Key.#{columnConfig.name}[ elem.#{columnConfig.name} ] }}
+                                        default
+                                            td {{ elem.#{columnConfig.name} }}
+                                td
+                                    input(type="button" ng-click="delete(elem._id)" value="delete")
 
