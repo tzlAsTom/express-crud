@@ -1,15 +1,16 @@
 extends ./layout.jade
 
-block append headScript
-    //- todo
-    script(src="/admin/angularJs/model.js")
-
-mixin generateInputForColumn(modelConfig, columnConfig, curRecord)
+mixin generateInputForColumn(modelConfig, columnConfig, curRecord, type)
     tr
         th= columnConfig.labelName
         case columnConfig.type
             when "text"
-                td: input(type="text" ng-model="#{curRecord}.#{columnConfig.name}")
+                td
+                    if columnConfig.name == '_id' && type == 'editForm'
+                        input(type="text" ng-if="inEditing" ng-model="#{curRecord}.#{columnConfig.name}" disabled="disabled")
+                        input(type="text" ng-if="!inEditing" ng-model="#{curRecord}.#{columnConfig.name}")
+                    else
+                        input(type="text" ng-model="#{curRecord}.#{columnConfig.name}")
             when "password"
                 td: input(type="password" ng-model="#{curRecord}.#{columnConfig.name}")
             when "textarea"
@@ -38,19 +39,15 @@ block content
     div(ng-controller="model")
         tcrud-config(data=modelConfig)
         block tcrudEditForm
-            h3 {{(curRecord._id == undefined)?'Create':'Edit'}}
-            div(class="tcrudEditForm #{modelConfig.name}")
+            h3 {{inEditing?'Edit':'Create'}}
+            div(class="tcrudEditForm #{modelConfig._id}")
                 block tcrudEditTable
                     table.tcrudEditTable: tbody
-                        tr(ng-show="!(curRecord._id == undefined)")
-                            th ID
-                            td: input(type="text" ng-model="curRecord._id" disabled="disabled")
-
                         each columnConfig in modelConfig.columns
-                            +generateInputForColumn(modelConfig, columnConfig, 'curRecord')
+                            +generateInputForColumn(modelConfig, columnConfig, 'curRecord', 'editForm')
 
-                input(type="button" value="create" ng-show="curRecord._id == undefined" ng-click="create()")
-                input(type="button" value="update" ng-show="!(curRecord._id == undefined)" ng-click="update()")
+                input(type="button" value="create" ng-show="!inEditing" ng-click="create()")
+                input(type="button" value="update" ng-show="inEditing" ng-click="update()")
                 input(type="button" value="reset" ng-click="reset()")
 
                 input(type="button" value="debug" ng-click="debug()")
@@ -61,15 +58,11 @@ block content
 
         block tcrudSearchForm
             h3 Search
-            div(class="tcrudSearchForm #{modelConfig.name}")
+            div(class="tcrudSearchForm #{modelConfig._id}")
                 block tcrudSearchTable
                     table.tcrudSearchTable: tbody
-                        tr
-                            th ID
-                            td: input(type="text" ng-model="query._id")
-
                         each columnConfig in modelConfig.columns
-                            +generateInputForColumn(modelConfig, columnConfig, 'query')
+                            +generateInputForColumn(modelConfig, columnConfig, 'query', 'searchForm')
 
                     input(type="button" value="search" ng-click="search()")
                     input(type="button" value="reset" ng-click="resetSearch()")
@@ -81,16 +74,11 @@ block content
                     block tcrudListTable
                         table.tcrudListTable: tbody
                             tr
-                                th ID
                                 each columnConfig in modelConfig.columns
                                     th= columnConfig.labelName
                                 th Delete
                             tr(ng-repeat="elem in recordList")
-                                td {{ elem._id }}
-                                    div(style="display:inline;float:right")
-                                        input(type="button" ng-click="initEdit(elem._id)" value="edit")
-                                        input(type="button" ng-click="initCopy(elem._id)" value="copy")
-                                each columnConfig in modelConfig.columns
+                                each columnConfig, index in modelConfig.columns
                                     case columnConfig.type
                                         when "checkbox"
                                             td
@@ -102,6 +90,10 @@ block content
                                             td {{ formDataValue2Key.#{columnConfig.name}[ elem.#{columnConfig.name} ] }}
                                         default
                                             td {{ elem.#{columnConfig.name} }}
+                                                if(index == 0)
+                                                    div(style="display:inline;float:right")
+                                                        input(type="button" ng-click="initEdit(elem._id)" value="edit")
+                                                        input(type="button" ng-click="initCopy(elem._id)" value="copy")
                                 td
                                     input(type="button" ng-click="delete(elem._id)" value="delete")
 

@@ -14,32 +14,42 @@ module.exports = function(root, express, app, options){
     var router = express.Router();
     router.get('/page/model/:name', function(req, res) {
         var modelName = req.params.name;
-        if(!isModelNameValid(modelName)) throw Error('modelName invalid');
-        res.locals.title = modelName;
-        modelConfig.name = modelName;
-        res.locals.modelConfig = modelConfig;
 
-        //WTF?
-        res.locals.pretty = true;
-        res.status(200).send(jade.renderFile('../views/model.jade', res.locals));
+        db.collection('tcrudModels').findOne({_id: modelName}, function(err, result){
+            if(err) throw err;
+
+            if(!result) throw('modelName invalid');
+
+            res.locals.title = modelName;
+            res.locals.modelConfig = result;
+            res.locals.pretty = true;
+            res.status(200).send(jade.renderFile('../views/model.jade', res.locals));
+        });
     });
 
-    router.get('/page/index', function(req, res) {
-        res.send('todo');
+    router.get('/', function(req, res) {
+        db.collection('tcrudModels').find({}).toArray(function(err, docs){
+            if(err) throw err;
+
+            res.locals.title = 'T-Crud System Index Page';
+            res.locals.modelList = docs;
+            res.locals.pretty = true;
+
+            res.locals._hideBreadCrumb = true;
+            res.status(200).send(jade.renderFile('../views/index.jade', res.locals));
+        });
     });
 
 
     router.get('/page/system/modelMeta', function(req, res) {
         var modelMetaConfig = {
-            name: 'tcrudModels',
+            _id: 'tcrudModels',
             displayName: 'Model Metadata',
             columns: [
                 {name: '_id', labelName: 'Collection Name', type: 'text'},
                 {name: 'displayName', labelName: 'Display Name', type: 'text'},
                 {name: 'selectBreakSize', labelName: 'Item Number Before Input Line Break', type: 'text', defaultValue: 5},
-                {name: 'columns', labelName: 'Column List', value:[
-                    {name: 'columnName1', labelName: 'Column Name1', type: 'text', defaultValue: 'aaa'},
-                ]},
+                {name: 'columns', labelName: 'Column List', type:'subDocList'},
             ],
         };
 
@@ -63,6 +73,7 @@ module.exports = function(root, express, app, options){
             */
             selectBreakSize: 5,
             columns: [
+                {name: '_id', labelName: 'ID', type: 'text'},
                 {name: 'text', labelName: 'Text', type: 'text', defaultValue: 'aaa', /*todo: form validate; disable showing in CRUD form*/
 
                 },

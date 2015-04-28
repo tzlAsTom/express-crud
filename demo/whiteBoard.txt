@@ -41,6 +41,9 @@ TBD:
 
     config: max display element for radiobox/checkbox in one line (done)
 
+    remove bootstrap.js?
+    remove jquery.js && jquery.css?
+
 TODO:
 2015-4-24
     enhance model template
@@ -64,3 +67,8 @@ TODO:
 
 2015-4-26
     should support edit/create in popup
+
+2015-4-28
+    shoud support id editing(not allow when in edit mode)
+    add search notice
+

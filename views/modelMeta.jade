@@ -2,110 +2,100 @@ extends ./model.jade
 
 block tcrudEditTable
     table.tcrudEditTable: tbody
-        each columnConfig, index in modelConfig.columns
+        each columnConfig in modelConfig.columns
             if(columnConfig.name == 'columns')
                 tr
-                    th columnConfig.labelName
+                    th= columnConfig.labelName
                     td
                         div
-                            div(ng-repeat="elem in modelConfig.columns[#{index}].value")
-                                span {{ elem.labelName }}
-                                    input(type="button" ng-click="modelMetaRemoveColumn('{{ elem.name }}')" value="delete")
-                            input(type="button" onClick="$('#tcrudAddColumnDialog').dialog()" value="Add")
+                            div(ng-repeat="elem in curRecord.columns")
+                                span
+                                    | {{ elem.labelName }}
+                                    button(ng-click="openAddColumnDialog(elem.name)") Edit
+                                    button(ng-click="modelMetaRemoveColumn(elem.name)") Delete
+                            input(type="button" ng-click="openAddColumnDialog()" value="Add")
             else
                 +generateInputForColumn(modelConfig, columnConfig, 'curRecord')
 
 block append footer
     //- todo:http://angular-ui.github.io/bootstrap/#/modal
-    div#tcrudAddColumnDialog
-        table.tcrudEditTable: tbody
-            tr
-                th Name
-                td: input(type="text" ng-model="curColumn.name")
-            tr
-                th LableName
-                td: input(type="text" ng-model="curColumn.lableName")
-            tr
-                th Type
-                td: select(ng-model="curColumn.type")
-                    option(value="text") text
-                    option(value="textarea") textarea
-                    option(value="password") password
-                    option(value="radio") radio
-                    option(value="checkbox") checkbox
-                    option(value="select") select
-            tr
-                th DataSource Type
-                td
-                    label
-                        input(type="radio" name="dataSourceType" value="manually")
-                        | Manually Input
-                    label
-                        input(type="radio" name="dataSourceType" value="systemModel")
-                        | Existing Model
-                    label
-                        input(type="radio" name="dataSourceType" value="systemDataSource")
-                        | Existing DataSource
-            tr
-                th DataSource
-                td
-                    div
-                        | For manually<br />
-                        br
-                        label Data List
-                        br
-                        select(size="5" style="display:inline")
-                            option(value="1") a, 1
-                            option(value="2") b, 2
-                            option(value="3") c, 3
-                        input(type="button" value="Remove Selected Item")
-                        br
-                        label Name
-                            input(type="text" style="width:150px")
-                        label Value
-                            input(type="text" style="width:150px")
+    div
+        script(type="text/ng-template" id="tcrudAddColumnDialog.html")
+            div.modal-header
+                h3.modal-title Add Column
+            div.modal-body
+                table.tcrudEditTable: tbody
+                    tr
+                        th Name
+                        td: input(type="text" ng-model="curColumn.name")
+                    tr
+                        th LableName
+                        td: input(type="text" ng-model="curColumn.labelName")
+                    tr
+                        th Type
+                        td: select(ng-model="curColumn.type")
+                            option(value="text") text
+                            option(value="textarea") textarea
+                            option(value="password") password
+                            option(value="radio") radio
+                            option(value="checkbox") checkbox
+                            option(value="select") select
+                    tr(ng-show="curColumn.type == 'radio' || curColumn.type == 'checkbox' || curColumn.type == 'select'")
+                        th DataSource Type
+                        td
+                            label
+                                input(type="radio" ng-model="curColumn.dataSourceType" value="manually")
+                                | Manually Input
+                            label
+                                input(type="radio" ng-model="curColumn.dataSourceType" value="systemModel")
+                                | Existing Model
+                            label
+                                input(type="radio" ng-model="curColumn.dataSourceType" value="systemDataSource")
+                                | Existing DataSource
+                    tr(ng-show="curColumn.dataSourceType")
+                        th DataSource
+                        td
+                            div
+                                div(ng-show="curColumn.dataSourceType == 'manually'")
+                                    label Data List
+                                    div(style="max-height: 100px; overflow:scroll;")
+                                        li(ng-repeat="elem in curColumn.dataSource") {{elem.labelName}}, {{elem.value}}
+                                            button(ng-click="deleteDataSource(elem.value)") Delete
+                                            button(ng-click="initEditDataSource(elem.value)") Edit
 
-                        input(type="button" value="Add")
+                                    label Name
+                                        input(type="text" style="width:150px" ng-model="dataSourceLabelName")
+                                    label Value
+                                        input(type="text" style="width:150px" ng-model="dataSourceValue")
 
-
-                        br
-                        |For systemModel<br />
-                        label Select Model
-                        br
-                        select
-                            option(value="a") Model A
-                            option(value="b") Model B
-                            option(value="c") Model C
-
-                        br
-                        |For systemDataSource<br />
-                        label Select DataSource
-                        br
-                        select
-                            option(value="a") DataSource A
-                            option(value="b") DataSource B
-                            option(value="c") DataSource C
-
-                        br
-                        |For systemModel && systemDataSource
-                        label DataSource Column Name for name
-                            input(type="text")
-                        label DataSource Column Name for value
-                            input(type="text")
+                                    button(ng-click="createDataSource()") Create
 
 
-    script(type="text/javascript").
-        $(document).ready(function(){
-            $('#tcrudAddColumnDialog').dialog({
-                width: 650,
-                dialogClass: "no-close",
-                modal:1,
-                title: "Add Column",
-                buttons:[{text:"Add Column", click:function(){
-                    addItem();
-                }}, {text:"Close", click:function(){
-                    $(this).dialog("close");
-                }}]
-            }).dialog("close");
-        });
+                                div(ng-show="curColumn.dataSourceType == 'systemModel'")
+                                    label Select Model
+                                    br
+                                    select
+                                        option(value="a") Model A
+                                        option(value="b") Model B
+                                        option(value="c") Model C
+
+                                div(ng-show="curColumn.dataSourceType == 'systemDataSource'")
+                                    label Select DataSource
+                                    br
+                                    select
+                                        option(value="a") DataSource A
+                                        option(value="b") DataSource B
+                                        option(value="c") DataSource C
+
+                                div(ng-show="curColumn.dataSourceType != 'manually'")
+                                    label DataSource Column Name for name
+                                        input(type="text")
+                                    label DataSource Column Name for value
+                                        input(type="text")
+
+            div.modal-footer
+                button(ng-click="save()") Save
+                button(ng-click="exit()") Exit
+                button(ng-click="debug()") Debug
+
 

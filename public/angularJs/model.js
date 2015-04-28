@@ -1,6 +1,6 @@
 (function(angular){
     //common
-    var app = angular.module('tcrud', [])
+    var app = angular.module('tcrud', ['ui.bootstrap'])
     .service('Container', ['$http', '$rootScope', function($http, $rootScope){
         this.updateAlertMessage = function(code, message){
             $rootScope.$broadcast('updateMessage', code, message);
@@ -70,7 +70,7 @@
     }]);
 
 
-    angular.module('tcrud').controller('model', ['$scope', 'Container', '$log', function($scope, Container, $log){
+    angular.module('tcrud').controller('model', ['$scope', 'Container', '$log', '$modal', function($scope, Container, $log, $modal){
         //{modelName: ""}
         $scope.modelConfig = {};
 
@@ -122,15 +122,27 @@
         };
 
         $scope.curRecord = {};
+        $scope.inEditing = false;
+
         $scope.recordList = [];
 
         $scope.query = {};
 
         $scope.create = function(){
             var curRecord = angular.copy($scope.curRecord);
-            Container.createResoure('/admin/restful/models/' + $scope.modelConfig.name, curRecord).success(function(data){
+            Container.createResoure('/admin/restful/models/' + $scope.modelConfig._id, curRecord).success(function(data){
                 Container.updateAlertMessage(false, 'Create success; _id: ' + data._id);
-                $scope.recordList.unshift(data);
+
+                var curRecordIndex;
+                $scope.recordList.forEach(function(elem, index){
+                    if(elem._id == data._id) curRecordIndex = index;
+                });
+
+                if(curRecordIndex != undefined){
+                    $scope.recordList[curRecordIndex] = data;
+                }else{
+                    $scope.recordList.unshift(data);
+                }
             });
         };
 
@@ -138,7 +150,7 @@
             var curRecord = angular.copy($scope.curRecord);
             var curId = curRecord._id;
             delete curRecord._id;
-            Container.updateResource('/admin/restful/models/' + $scope.modelConfig.name + '/' + curId, curRecord).success(function(data){
+            Container.updateResource('/admin/restful/models/' + $scope.modelConfig._id + '/' + curId, curRecord).success(function(data){
                 Container.updateAlertMessage(false, 'Update Success; _id: ' + curId);
                 angular.forEach($scope.recordList, function(elem, index){
                     if(elem._id == curId) $scope.recordList[index] = angular.copy($scope.curRecord);
@@ -147,7 +159,7 @@
         };
 
         $scope.delete = function(_id){
-            Container.deleteResource('/admin/restful/models/' + $scope.modelConfig.name + '/' + _id).success(function(data){
+            Container.deleteResource('/admin/restful/models/' + $scope.modelConfig._id + '/' + _id).success(function(data){
                 Container.updateAlertMessage(false, 'Delete success; _id: ' + _id);
 
                 angular.forEach($scope.recordList, function(elem, index){
@@ -163,18 +175,20 @@
             console.log($scope.formData);
             console.log($scope.formDataValue2Key);
             console.log($scope.query);
+            console.log($scope.curRecord);
             Container.updateAlertMessage(false, JSON.stringify($scope.curRecord, null, '  '));
         };
 
         $scope.reset = function(){
             $scope.curRecord = {};
+            $scope.inEditing = false;
         };
 
         $scope.search = function(){
             Object.keys($scope.query).forEach(function(elem){
                 if($scope.query[elem] === '') delete $scope.query[elem];
             });
-            Container.getResource('/admin/restful/models/' + $scope.modelConfig.name, $scope.query).success(function(data){
+            Container.getResource('/admin/restful/models/' + $scope.modelConfig._id, $scope.query).success(function(data){
                 $scope.recordList = data;
             });
         };
@@ -185,8 +199,8 @@
         $scope.initEdit = function(_id){
             angular.forEach($scope.recordList, function(elem, index){
                 if(_id == elem._id){
+                    $scope.inEditing = true;
                     $scope.curRecord = angular.copy($scope.recordList[index]);;
-                    $scope.serverSelected = Container.filterToCheckBoxConfig($scope.curRecord.w);
                 }
             });
         };
@@ -196,9 +210,40 @@
                 if(_id == elem._id){
                     var curRecord = angular.copy($scope.recordList[index]);
                     delete curRecord._id;
+                    $scope.inEditing = false;
                     $scope.curRecord = curRecord;
                 }
             });
+        };
+
+
+        $scope.openAddColumnDialog = function (selectedColumnName) {
+            if(!$scope.curRecord.columns) $scope.curRecord.columns = [];
+
+            var modalInstance = $modal.open({
+                templateUrl: 'tcrudAddColumnDialog.html',
+                controller: 'tcrudAddColumnDialog',
+                size: 'lg',
+                resolve: {
+                    columns: function () {
+                        //pass all columns array to modal-- modal doesnot support stream results
+                        return $scope.curRecord.columns;
+                    },
+                    selectedColumnName: function(){
+                        return selectedColumnName;
+                    },
+                }
+            });
+
+            modalInstance.result.then(function (selectedItem) {
+                $scope.selected = selectedItem;
+            }, function () {
+                $log.info('Modal dismissed at: ' + new Date());
+            });
+        };
+
+        $scope.modelMetaRemoveColumn = function(name){
+            console.log(name);
         };
     }])
     .directive('tcrudConfig',  function(){
@@ -210,4 +255,72 @@
             }
         };
     });
+
+    angular.module('tcrud').controller('tcrudAddColumnDialog', ['$scope', 'Container', '$modalInstance', '$log', 'columns', 'selectedColumnName', function($scope, Container, $modalInstance, $log, columns, selectedColumnName){
+        $scope.curColumn = {};
+
+        columns.forEach(function(elem){
+            if(elem.name == selectedColumnName) $scope.curColumn = angular.copy(elem);
+        });
+
+        $scope.createDataSource = function(){
+            var curDataSource;
+            if(!$scope.curColumn.dataSource) $scope.curColumn.dataSource = [];
+
+            $scope.curColumn.dataSource.forEach(function(elem){
+                if(elem.value == $scope.dataSourceValue) curDataSource = elem;
+            });
+
+            if(curDataSource){
+                curDataSource.labelName = $scope.dataSourceLabelName;
+            }else{
+                $scope.curColumn.dataSource.push({labelName: $scope.dataSourceLabelName, value: $scope.dataSourceValue});
+            }
+        };
+
+        $scope.initEditDataSource = function(searchValue){
+            var curDataSource;
+            $scope.curColumn.dataSource.forEach(function(elem){
+                if(elem.value == searchValue) curDataSource = elem;
+            });
+
+            if(curDataSource){
+                $scope.dataSourceLabelName = curDataSource.labelName;
+                $scope.dataSourceValue = curDataSource.value;
+            }
+        };
+
+        $scope.deleteDataSource = function(searchValue){
+            var curDataSourceIndex;
+            $scope.curColumn.dataSource.forEach(function(elem, index){
+                if(elem.value == searchValue) curDataSourceIndex = index;
+            });
+
+            $scope.curColumn.dataSource.splice(curDataSourceIndex, 1);
+        };
+
+        $scope.save = function () {
+            var newColumn = angular.copy($scope.curColumn);
+
+            var curColumnIndex;
+            columns.forEach(function(elem, index){
+                if(elem.name == newColumn.name) curColumnIndex = index;
+            });
+
+            if(curColumnIndex != undefined){
+                columns[curColumnIndex] = newColumn;
+            }else{
+                columns.push(newColumn);
+            }
+            //$modalInstance.close($scope.selected.item);
+        };
+
+        $scope.exit = function () {
+            $modalInstance.dismiss('cancel');
+        };
+
+        $scope.debug = function(){
+            console.log($scope.curColumn);
+        };
+    }]);
 })(window.angular);

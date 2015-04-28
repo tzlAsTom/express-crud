@@ -1,0 +1,13 @@
+extends ./layout.jade
+
+block content
+    //- todo model grouping
+    h4 Your Models
+    ul
+        each modelConfig in modelList
+            li: a(href="/admin/page/model/#{ modelConfig._id }")= modelConfig.displayName
+
+
+    h4 System Tools
+    ul
+        li: a(href="/admin/page/system/modelMeta") Modify Model(s) MetaData
