@@ -59,7 +59,7 @@ function tcrud(root, express, app, options){
                 tcrud.getModelConfig(db, modelName, callback);
             },
             function(modelConfig, callback){
-                res.locals.title = modelName;
+                res.locals.title = modelConfig.displayName;
                 res.locals.modelConfig = modelConfig;
                 res.locals.pretty = true;
                 res.status(200).send(jade.renderFile('../views/model.jade', res.locals));

@@ -86,20 +86,14 @@ block append footer
 
 
                                 div(ng-show="curColumn.dataSourceType == 'systemModel'")
-                                    label Select Model
+                                    label Select Model(Not Ready)
                                     br
                                     select
-                                        option(value="a") Model A
-                                        option(value="b") Model B
-                                        option(value="c") Model C
 
                                 div(ng-show="curColumn.dataSourceType == 'systemDataSource'")
-                                    label Select DataSource
+                                    label Select DataSource(Not Ready)
                                     br
                                     select
-                                        option(value="a") DataSource A
-                                        option(value="b") DataSource B
-                                        option(value="c") DataSource C
 
                                 div(ng-show="curColumn.dataSourceType != 'manually'")
                                     label DataSource Column Name for name
