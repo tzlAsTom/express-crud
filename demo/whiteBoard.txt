@@ -56,12 +56,12 @@ TODO:
 
 
 2015-4-24
-    server error handling
+    server error handling (done - 2015-4-29)
 
 
 2015-4-25
     checkbox searching
-    column CRUD filter
+    column CRUD filter (done - 2015-4-29)
     column's default value
     pagination
 
@@ -71,4 +71,7 @@ TODO:
 2015-4-28
     shoud support id editing(not allow when in edit mode)
     add search notice
+
+2015-4-29
+     Drag and Drop
 

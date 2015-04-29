@@ -1,6 +1,9 @@
 (function(angular){
     //common
     var app = angular.module('tcrud', ['ui.bootstrap'])
+    .config(['$httpProvider', function($httpProvider) {
+        $httpProvider.defaults.headers.common["X-Requested-With"] = 'XMLHttpRequest';
+    }])
     .service('Container', ['$http', '$rootScope', function($http, $rootScope){
         this.updateAlertMessage = function(code, message){
             $rootScope.$broadcast('updateMessage', code, message);
@@ -65,7 +68,7 @@
             preTimeout = $timeout(function(){
                 $scope.updateAlertMessage(code, '');
                 console.log('xxxx');
-            }, 2000);
+            }, 5000);
         });
     }]);
 
@@ -174,8 +177,9 @@
         $scope.debug = function(){
             console.log($scope.formData);
             console.log($scope.formDataValue2Key);
-            console.log($scope.query);
-            console.log($scope.curRecord);
+            console.log("query:", $scope.query);
+            console.log("curRecord:", $scope.curRecord);
+            console.log("recordList:", $scope.recordList);
             Container.updateAlertMessage(false, JSON.stringify($scope.curRecord, null, '  '));
         };
 
@@ -243,7 +247,14 @@
         };
 
         $scope.modelMetaRemoveColumn = function(name){
-            console.log(name);
+            var curColumnIndex;
+            $scope.curRecord.columns.forEach(function(elem, index){
+                if(elem.name == name) curColumnIndex = index;
+            });
+
+            if(curColumnIndex != undefined){
+                $scope.curRecord.columns.splice(curColumnIndex, 1);
+            }
         };
     }])
     .directive('tcrudConfig',  function(){
@@ -257,7 +268,7 @@
     });
 
     angular.module('tcrud').controller('tcrudAddColumnDialog', ['$scope', 'Container', '$modalInstance', '$log', 'columns', 'selectedColumnName', function($scope, Container, $modalInstance, $log, columns, selectedColumnName){
-        $scope.curColumn = {};
+        $scope.curColumn = {display:{C: false, R: false, L: false}};
 
         columns.forEach(function(elem){
             if(elem.name == selectedColumnName) $scope.curColumn = angular.copy(elem);

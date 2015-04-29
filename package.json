@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/tzlAsTom/express-crud",
   "dependencies": {
+    "async": "^0.9.0",
     "express": "~4.12.2",
     "jade": "^1.9.2",
     "mongodb": "^2.0.27"

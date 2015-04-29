@@ -32,6 +32,20 @@ block append footer
                         th LableName
                         td: input(type="text" ng-model="curColumn.labelName")
                     tr
+                        th Display Control
+                        td
+                            label
+                                input(type="checkbox" ng-model="curColumn.display.C")
+                                | Enable Create/Edit
+                            br
+                            label
+                                input(type="checkbox" ng-model="curColumn.display.R")
+                                | Enable Search
+                            br
+                            label
+                                input(type="checkbox" ng-model="curColumn.display.L")
+                                | Show In Result List
+                    tr
                         th Type
                         td: select(ng-model="curColumn.type")
                             option(value="text") text

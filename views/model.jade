@@ -1,99 +1,111 @@
 extends ./layout.jade
 
 mixin generateInputForColumn(modelConfig, columnConfig, curRecord, type)
-    tr
-        th= columnConfig.labelName
-        case columnConfig.type
-            when "text"
-                td
-                    if columnConfig.name == '_id' && type == 'editForm'
-                        input(type="text" ng-if="inEditing" ng-model="#{curRecord}.#{columnConfig.name}" disabled="disabled")
-                        input(type="text" ng-if="!inEditing" ng-model="#{curRecord}.#{columnConfig.name}")
-                    else
-                        input(type="text" ng-model="#{curRecord}.#{columnConfig.name}")
-            when "password"
-                td: input(type="password" ng-model="#{curRecord}.#{columnConfig.name}")
-            when "textarea"
-                td: textarea(type="textarea" ng-model="#{curRecord}.textarea")
-            when "checkbox"
-                td
-                    span(ng-repeat="elem in formData.#{columnConfig.name}")
-                        label
-                            input(type="checkbox" ng-model="#{curRecord}.#{columnConfig.name}[elem.value]" value="{{elem._id}}")
-                            {{ elem.labelName }}
-                        br(ng-if="$index%#{modelConfig.selectBreakSize} == (#{modelConfig.selectBreakSize} - 1)")
-            when "radio"
-                td
-                    span(ng-repeat="elem in formData.#{columnConfig.name}")
-                        label
-                            input(type="radio" ng-model="#{curRecord}.#{columnConfig.name}" value="{{elem.value}}")
-                            {{ elem.labelName }}
-                        br(ng-if="$index%#{modelConfig.selectBreakSize} == (#{modelConfig.selectBreakSize} - 1)")
-            when "select"
-                td
-                    select(ng-model="#{curRecord}.#{columnConfig.name}" ng-options="elem.value as elem.labelName for elem in formData.#{columnConfig.name}")
-            default
-               td input type not supported: #{columnConfig.type}
+    if(!(columnConfig.display && ((type == 'editForm' && columnConfig.display.C === false) || (type == 'searchForm' && columnConfig.display.R === false) ) ))
+        tr
+            th= columnConfig.labelName
+            case columnConfig.type
+                when "text"
+                    td
+                        if columnConfig.name == '_id' && type == 'editForm'
+                            input(type="text" ng-if="inEditing" ng-model="#{curRecord}.#{columnConfig.name}" disabled="disabled")
+                            input(type="text" ng-if="!inEditing" ng-model="#{curRecord}.#{columnConfig.name}")
+                        else
+                            input(type="text" ng-model="#{curRecord}.#{columnConfig.name}")
+                when "password"
+                    td: input(type="password" ng-model="#{curRecord}.#{columnConfig.name}")
+                when "textarea"
+                    td: textarea(type="textarea" ng-model="#{curRecord}.#{columnConfig.name}")
+                when "checkbox"
+                    td
+                        span(ng-repeat="elem in formData.#{columnConfig.name}")
+                            label
+                                input(type="checkbox" ng-model="#{curRecord}.#{columnConfig.name}[elem.value]" value="{{elem._id}}")
+                                | {{ elem.labelName }}
+                            br(ng-if="$index%#{modelConfig.selectBreakSize} == (#{modelConfig.selectBreakSize} - 1)")
+                when "radio"
+                    td
+                        span(ng-repeat="elem in formData.#{columnConfig.name}")
+                            label
+                                input(type="radio" ng-model="#{curRecord}.#{columnConfig.name}" value="{{elem.value}}")
+                                | {{ elem.labelName }}
+                            br(ng-if="$index%#{modelConfig.selectBreakSize} == (#{modelConfig.selectBreakSize} - 1)")
+                when "select"
+                    td
+                        select(ng-model="#{curRecord}.#{columnConfig.name}" ng-options="elem.value as elem.labelName for elem in formData.#{columnConfig.name}")
+                default
+                    td input type not supported: #{columnConfig.type}
 
 block content
     div(ng-controller="model")
         tcrud-config(data=modelConfig)
-        block tcrudEditForm
-            h3 {{inEditing?'Edit':'Create'}}
-            div(class="tcrudEditForm #{modelConfig._id}")
-                block tcrudEditTable
-                    table.tcrudEditTable: tbody
-                        each columnConfig in modelConfig.columns
-                            +generateInputForColumn(modelConfig, columnConfig, 'curRecord', 'editForm')
 
-                input(type="button" value="create" ng-show="!inEditing" ng-click="create()")
-                input(type="button" value="update" ng-show="inEditing" ng-click="update()")
-                input(type="button" value="reset" ng-click="reset()")
+        if(!(modelConfig.enableEdit == '0'))
+            block tcrudEditForm
+                h3 {{inEditing?'Edit':'Create'}}
+                div(class="tcrudEditForm #{modelConfig._id}")
+                    block tcrudEditTable
+                        table.tcrudEditTable: tbody
+                            each columnConfig in modelConfig.columns
+                                +generateInputForColumn(modelConfig, columnConfig, 'curRecord', 'editForm')
 
-                input(type="button" value="debug" ng-click="debug()")
+                    input(type="button" value="create" ng-show="!inEditing" ng-click="create()")
+                    input(type="button" value="update" ng-show="inEditing" ng-click="update()")
+                    input(type="button" value="reset" ng-click="reset()")
+
+                    input(type="button" value="debug" ng-click="debug()")
 
 
-        block tcrudNotice
-            div(class="alert alert-info") notice
+            block tcrudCreateNotice
+                if modelConfig.createNotice
+                    div(class="alert alert-info" style="white-space: pre")= modelConfig.createNotice
 
-        block tcrudSearchForm
-            h3 Search
-            div(class="tcrudSearchForm #{modelConfig._id}")
-                block tcrudSearchTable
-                    table.tcrudSearchTable: tbody
-                        each columnConfig in modelConfig.columns
-                            +generateInputForColumn(modelConfig, columnConfig, 'query', 'searchForm')
-
-                    input(type="button" value="search" ng-click="search()")
-                    input(type="button" value="reset" ng-click="resetSearch()")
-
-        div.panel
-            block tcrudRecordList
-                h4 Result list
-                div.tcrudRecordList
-                    block tcrudListTable
-                        table.tcrudListTable: tbody
-                            tr
+        if(!(modelConfig.enableSearch == '0'))
+            block tcrudSearchForm
+                    h3 Search
+                    div(class="tcrudSearchForm #{modelConfig._id}")
+                        block tcrudSearchTable
+                            table.tcrudSearchTable: tbody
                                 each columnConfig in modelConfig.columns
-                                    th= columnConfig.labelName
-                                th Delete
-                            tr(ng-repeat="elem in recordList")
-                                each columnConfig, index in modelConfig.columns
-                                    case columnConfig.type
-                                        when "checkbox"
-                                            td
-                                                span(ng-repeat="(elem2, value2) in elem.#{columnConfig.name}")
-                                                    span(ng-if="value2") {{ formDataValue2Key.#{columnConfig.name}[elem2] }}
-                                                        span(ng-if="!$last") ,&nbsp;
-                                        when "radio"
-                                        when "select"
-                                            td {{ formDataValue2Key.#{columnConfig.name}[ elem.#{columnConfig.name} ] }}
-                                        default
-                                            td {{ elem.#{columnConfig.name} }}
-                                                if(index == 0)
-                                                    div(style="display:inline;float:right")
-                                                        input(type="button" ng-click="initEdit(elem._id)" value="edit")
-                                                        input(type="button" ng-click="initCopy(elem._id)" value="copy")
-                                td
-                                    input(type="button" ng-click="delete(elem._id)" value="delete")
+                                    +generateInputForColumn(modelConfig, columnConfig, 'query', 'searchForm')
+
+                            input(type="button" value="search" ng-click="search()")
+                            input(type="button" value="reset" ng-click="resetSearch()")
+
+
+            block tcrudSearchNotice
+                if modelConfig.searchNotice
+                    div(class="alert alert-info" style="white-space: pre")= modelConfig.searchNotice
+
+            div.panel
+                block tcrudRecordList
+                    h4 Result list
+                    div.tcrudRecordList
+                        block tcrudListTable
+                            table.tcrudListTable: tbody
+                                tr
+                                    each columnConfig in modelConfig.columns
+                                        if(!(columnConfig.display && columnConfig.display.L === false))
+                                            th= columnConfig.labelName
+                                    th Delete
+                                tr(ng-repeat="elem in recordList")
+                                    each columnConfig, index in modelConfig.columns
+                                        if(!(columnConfig.display && columnConfig.display.L === false))
+                                            case columnConfig.type
+                                                when "checkbox"
+                                                    td
+                                                        span(ng-repeat="(elem2, value2) in elem.#{columnConfig.name}")
+                                                            span(ng-if="value2") {{ formDataValue2Key.#{columnConfig.name}[elem2] }}
+                                                                span(ng-if="!$last") ,&nbsp;
+                                                when "radio"
+                                                when "select"
+                                                    td {{ formDataValue2Key.#{columnConfig.name}[ elem.#{columnConfig.name} ] }}
+                                                default
+                                                    td {{ elem.#{columnConfig.name} }}
+                                                        if(index == 0 && !(modelConfig.enableEdit == '0'))
+                                                            div(style="display:inline;float:right")
+                                                                input(type="button" ng-click="initEdit(elem._id)" value="edit")
+                                                                input(type="button" ng-click="initCopy(elem._id)" value="copy")
+                                    td
+                                        input(type="button" ng-click="delete(elem._id)" value="delete")
 

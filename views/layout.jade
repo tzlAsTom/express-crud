@@ -22,9 +22,10 @@ html(ng-app="tcrud")
   body(ng-controller="main")
     if !_hideBreadCrumb
         ul(class="breadcrumb")
-            li: a(href="/") home
-            each val in [{name: 'google', href: 'http://google.com'}]
-                li: a(href=val.href)= val.name
+            li: a(href="/admin") home
+            if _breadCrumbList
+                each val in _breadCrumbList
+                    li: a(href=val.href)= val.name
             li(class="active")= title
 
     //- server message
