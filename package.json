@@ -1,5 +1,5 @@
 {
-  "name": "express-crud",
+  "name": "crud-framework",
   "version": "0.1.0",
   "description": "crud framework with mongodb and express",
   "main": "index.js",
