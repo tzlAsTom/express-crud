@@ -6,4 +6,4 @@ If your:
 * System builded with MongoDB
 * Prepare a site builded on AngularJs
 
-[try here](http://172.104.76.143:3333//admin) --only prototype now
+[try here](http://172.104.76.143:3333/admin) --only prototype now
